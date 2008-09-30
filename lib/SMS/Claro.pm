@@ -5,13 +5,13 @@ package SMS::Claro;
 use strict;
 use warnings;
 
-use WWW::Mechanize;
+use LWP::UserAgent;
 use HTTP::Request;
 
 use vars qw($VERSION);
 use Carp;
 
-$VERSION = "0.01";
+$VERSION = "0.1";
 
 sub new () {
 	my ($class, %params) = @_;
@@ -101,16 +101,15 @@ sub send {
 	$url .= "&TEXT=$parms->{message}";
 	$url .= "&VALPERIOD=" . $self->valperiod;
 
-	print $url . "\n";
+	my $response = $self->{"_ua"}->get($url);
 
-	$self->{"_ua"}->get($url);
-	
-	if ($self->{"_ua"}->success()) {
-		$self->{"_content"} = $self->{"_ua"}->content;
+	if ($response->is_success()) {
+		$self->{"_content"} = $response->content;
 		$self->{"_success"} = 1;
 	} else {
 		$self->{"_success"} = 0;
 	}
+
 	return $self->is_success;
 }
 
@@ -118,9 +117,9 @@ sub _init {
 	my $self = shift;
 	my %params = @_;
 
-	my $ua = WWW::Mechanize->new(
+	my $ua =  LWP::UserAgent->new(
 		agent => __PACKAGE__." v. $VERSION",
-        );
+	);
 
 	my %options = (
 		ua                => $ua,
@@ -176,7 +175,7 @@ SMS::Claro allow sending SMS messages via Claro, using a short-number (4 numbers
 
 =head2 new
 
-new creates a new SMS::Claro object.
+creates a new SMS::Claro object.
 
 =head2 Options
 
@@ -184,7 +183,7 @@ new creates a new SMS::Claro object.
 
 =item baseurl
 
-Defaults to "https://retail.mds.claro.com.br/BAE/xmlgate?user=USEREPSM&pwd=u852psm&service=SENDSMS_NACIONAL&mode=assync-delivery"
+Defaults to "https://retail.mds.claro.com.br/BAE/xmlgate?"
 
 =item ua
 

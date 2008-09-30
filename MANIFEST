@@ -1,9 +1,6 @@
 Changes
 MANIFEST
 Makefile.PL
-t
 t/SMS-Claro.t
 README
-lib
-lib/SMS
 lib/SMS/Claro.pm
